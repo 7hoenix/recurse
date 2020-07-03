@@ -4,4 +4,5 @@ fn main() {
     for i in &mut v {
         *i += 40;
     }
+    v[88];
 }
