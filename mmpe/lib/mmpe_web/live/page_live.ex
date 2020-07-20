@@ -4,15 +4,22 @@ defmodule MMPEWeb.PageLive do
   @impl true
   def render(assigns) do
     ~L"""
-    <a href="#" phx-click="inc_counter">Increment</a>
-    <p>Counter: <%= @counter %></p>
+    <div class="grid" id="grid">
+      <%= for y <- 0..@height - 1, x <- 0..@width-1 do %>
+        <div id="<%= x %>-<%= y %>" class="grid-cell white">
+        </div>
+      <% end %>
+    </div>
     """
   end
 
   @impl true
   def mount(_params, _session, socket) do
-    socket = assign(socket, :counter, 0)
-    {:ok, socket}
+    {:ok, socket
+      |> assign(:grid, %{})
+      |> assign(:width, 30)
+      |> assign(:height, 24)
+    }
   end
 
   def handle_event("inc_counter", _session, socket) do
