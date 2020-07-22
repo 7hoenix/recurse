@@ -15,22 +15,35 @@ fn make_edge(edges_with_weights: Vec<(&str, u32)>) -> HashMap<&str, u32> {
     node
 }
 
+fn find_lowest_cost_node(costs: HashMap<&str, Option<u32>>) -> Option<(&str, u32)> {
+    costs
+}
+
 fn main() {
     let mut graph: HashMap<&str, HashMap<&str, u32>> = HashMap::new();
+    //
+    // NOTE:
+    // The None type of the option represents infinity for costs.
+    //
+    let mut costs: HashMap<&str, Option<u32>> = HashMap::new();
+    let mut parents: HashMap<&str, &str> = HashMap::new();
+    let mut processed: Vec<&str> = Vec::new();
 
-    let book: HashMap<&str, u32> = make_edge([("poster", 0), ("lp", 5)].to_vec());
-    let poster: HashMap<&str, u32> = make_edge([("bass_guitar", 30), ("drums", 35)].to_vec());
-    let lp: HashMap<&str, u32> = make_edge([("bass_guitar", 15), ("drums", 20)].to_vec());
+    let entries = [
+        ("book", [("poster", 0), ("lp", 5)].to_vec()),
+        ("poster", [("bass_guitar", 30), ("drums", 35)].to_vec()),
+        ("lp", [("bass_guitar", 15), ("drums", 20)].to_vec()),
+        ("bass_guitar", [("piano", 20)].to_vec()),
+        ("drums", [("piano", 10)].to_vec()),
+        ("piano", [].to_vec()),
+    ];
 
-    let bass_guitar: HashMap<&str, u32> = make_edge([("piano", 20)].to_vec());
-    let drums: HashMap<&str, u32> = make_edge([("piano", 10)].to_vec());
+    for (entry, edges) in &entries {
+        graph.insert(entry, make_edge(edges.to_vec()));
+    }
 
-    graph.insert("book", book);
-    graph.insert("poster", poster);
-    graph.insert("lp", lp);
-    graph.insert("bass_guitar", bass_guitar);
-    graph.insert("drums", drums);
-    graph.insert("piano", HashMap::new());
+    let mut node = find_lowest_cost_node(costs);
+
 
     println!("{:#?}", graph);
 }
