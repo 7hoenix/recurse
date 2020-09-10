@@ -2,39 +2,58 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
-use syn::{parse_macro_input, DeriveInput, Attribute, Data, DataStruct, Fields, FieldsNamed, Field, Type, PathSegment, Path};
+use syn::{Error, parse_macro_input, DeriveInput, Attribute, Data, DataStruct, Fields, FieldsNamed, Field, Type, PathSegment, Path, Result};
+use syn::parse::{Parse, ParseStream};
 use syn::punctuated::{Punctuated, Pair};
 use syn::token::{Colon2};
 use quote::{quote};
 
+#[derive(Debug)]
+struct MyMacroInput {
+    ident: syn::Ident,
+}
+
+impl Parse for MyMacroInput {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let ident: syn::Ident = input.parse()?;
+        Err(Error::new(input.span(), "WE FAILED"))
+    }
+}
+
 #[proc_macro_derive(Builder)]
 pub fn derive(input: TokenStream) -> TokenStream {
-    let ast = parse_macro_input!(input as DeriveInput);
-    // eprintln!("****************************************");
-    // eprintln!("AST: {:#?}", ast);
-    // eprintln!("****************************************");
-    let noned_attrs: proc_macro2::TokenStream = retrieve_attrs_typed_or_untyped(&ast, None);
-    let typed_attrs: proc_macro2::TokenStream = retrieve_attrs_typed_or_untyped(&ast, Some("doesntmatt"));
+    eprintln!("HELLOOOOOOOOOOOOOOOOOOOOO");
+    let ast = parse_macro_input!(input as MyMacroInput);
+    eprintln!("****************************************");
+    eprintln!("AST: {:#?}", ast);
+    eprintln!("****************************************");
+    // let noned_attrs: proc_macro2::TokenStream = retrieve_attrs_typed_or_untyped(&ast, None); // Will return `arg: None`
+    // let typed_attrs: proc_macro2::TokenStream = retrieve_attrs_typed_or_untyped(&ast, Some("doesntmatt")); // Will return `arg: Option<S>
 
     let module_ident = &ast.ident;
-    let with_builder = format!("{}Builder", module_ident);
-    let module_name_as_ident = syn::Ident::new(&with_builder, module_ident.span());
+    // let with_builder = format!("{}Builder", module_ident);
+    // let module_name_as_ident = syn::Ident::new(&with_builder, module_ident.span());
 
+    // let expanded = quote! {
+    //     pub struct #module_name_as_ident {
+    //         #typed_attrs
+    //     }
+
+    //     impl #module_ident {
+    //         pub fn builder() -> #module_name_as_ident {
+    //             #module_name_as_ident {
+    //                 #noned_attrs
+    //             }
+    //         }
+    //     }
+    // };
     let expanded = quote! {
-        pub struct #module_name_as_ident {
-            #typed_attrs
+        pub struct #module_ident {
+            // #typed_attrs
         }
-
-        impl #module_ident {
-            pub fn builder() -> #module_name_as_ident {
-                #module_name_as_ident {
-                    #noned_attrs
-                }
-            }
-        }
+        // input
     };
-
-    proc_macro::TokenStream::from(expanded)
+    return proc_macro::TokenStream::from(expanded)
 }
 
 
